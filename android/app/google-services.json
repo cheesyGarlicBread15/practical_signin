@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "228367469843",
+    "project_id": "practical-signin",
+    "storage_bucket": "practical-signin.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:228367469843:android:ab9d0cef5da59a6b111ee6",
+        "android_client_info": {
+          "package_name": "com.example.practical_signin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFVBxCDx-b5aS8bcwaftxA35c-ildLDDM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
