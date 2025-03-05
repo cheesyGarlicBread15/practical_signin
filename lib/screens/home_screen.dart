@@ -22,8 +22,33 @@ class HomeScreen extends StatelessWidget {
     }
   }
 
+  List<String> getLinkedProviders(User user) {
+    return user.providerData
+        .map((info) => info.providerId)
+        .where((id) => id != 'password') // Exclude email/password provider
+        .map((id) {
+          switch (id) {
+            case 'google.com':
+              return 'Google';
+            case 'twitter.com':
+              return 'Twitter';
+            case 'github.com':
+              return 'GitHub';
+            case 'facebook.com':
+              return 'Facebook';
+            case 'apple.com':
+              return 'Apple';
+            default:
+              return id; // Fallback for unknown providers
+          }
+        })
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<String> linkedAccounts = getLinkedProviders(user);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Home"),
@@ -35,9 +60,21 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       body: Center(
-        child: Text(
-          "Welcome, ${user.displayName ?? 'User'}!",
-          style: const TextStyle(fontSize: 20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Welcome, ${user.displayName ?? 'User'}!",
+              style: const TextStyle(fontSize: 20),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              linkedAccounts.isNotEmpty
+                  ? "Linked Accounts: ${linkedAccounts.join(', ')}"
+                  : "No linked accounts",
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ],
         ),
       ),
     );
