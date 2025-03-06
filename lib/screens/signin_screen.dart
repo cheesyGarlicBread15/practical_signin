@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:practical_signin/screens/home_screen.dart';
 import 'package:practical_signin/screens/set_password_screen.dart';
@@ -120,6 +121,50 @@ class _SigninScreenState extends State<SigninScreen> {
     }
   }
 
+  Future<void> _signInWithFacebook() async {
+    setState(() => _isLoading = true);
+    try {
+      final LoginResult result = await FacebookAuth.instance.login();
+
+      if (result.status == LoginStatus.success) {
+        final AuthCredential credential =
+            FacebookAuthProvider.credential(result.accessToken!.tokenString);
+
+        final UserCredential userCredential =
+            await FirebaseAuth.instance.signInWithCredential(credential);
+
+        final User? user = userCredential.user;
+        if (user != null) {
+          final additionalInfo = userCredential.additionalUserInfo;
+          final bool isNewUser = additionalInfo?.isNewUser ?? false;
+
+          if (isNewUser) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => SetPasswordScreen(user: user)),
+            );
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomeScreen(user: user)),
+            );
+          }
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Facebook login failed: ${result.message}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to sign in with Facebook: $e')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -169,11 +214,13 @@ class _SigninScreenState extends State<SigninScreen> {
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.grey, width: 1),
+                      borderSide:
+                          const BorderSide(color: Colors.grey, width: 1),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.blue, width: 2),
+                      borderSide:
+                          const BorderSide(color: Colors.blue, width: 2),
                     ),
                   ),
                   keyboardType: TextInputType.emailAddress,
@@ -200,11 +247,13 @@ class _SigninScreenState extends State<SigninScreen> {
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.grey, width: 1),
+                      borderSide:
+                          const BorderSide(color: Colors.grey, width: 1),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.blue, width: 2),
+                      borderSide:
+                          const BorderSide(color: Colors.blue, width: 2),
                     ),
                   ),
                   obscureText: true,
@@ -233,13 +282,15 @@ class _SigninScreenState extends State<SigninScreen> {
                           height: 20,
                           width: 20,
                           child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
                             strokeWidth: 2,
                           ),
                         )
                       : const Text(
                           'Sign In',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                 ),
                 const SizedBox(height: 24),
@@ -274,6 +325,20 @@ class _SigninScreenState extends State<SigninScreen> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 10,),
+                OutlinedButton.icon(
+                  onPressed: _isLoading ? null : _signInWithFacebook,
+                  icon: const Icon(Icons.facebook, size: 24),
+                  label: const Text('Sign in with Facebook'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: const BorderSide(color: Colors.grey),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+
                 const SizedBox(height: 24),
                 // Sign Up Link
                 Row(
